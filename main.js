@@ -1,9 +1,12 @@
-// Drow game window and realise the game logic
+import { output } from './apoyo.js';
+import {SCALE_BALL, SCALE_PAD_WIDTH, SCALE_PAD_HEIGHT} from './constants.js';
+import { keyState, setupKeyControls } from './controls.js';
 
+
+// Drow game window and realise the game logic
 const localButton = document.getElementById('localGameButton');
 const onlineButton = document.getElementById('onlineGameButton');
-
-let gameMode = 'local';
+let gameMode = '';
 
 localButton.addEventListener('click', function () {
 	
@@ -19,23 +22,20 @@ onlineButton.addEventListener('click', function () {
 
 function startLocalGame() {
 
+	setupKeyControls();
+	setInterval(keyMovePad, 1000 / 60);
 	console.log('local game started');
 }
 
 function startOnlineGame() {
 
+	window.addEventListener('mousemove', mouseMovePad);
 	console.log('online game started');
 }
 
 
 const canvas = document.getElementById('gameWindow');
 const ctx = canvas.getContext('2d');
-const constant = {
-
-	scaleBall: 0.03,
-	scalePadWidth: 0.03,
-	scalePadHeight: 0.2
-};
 
 //define the game window size
 var width = window.innerWidth * 0.6;
@@ -48,7 +48,7 @@ const ball = {
 
 	x: width / 2,
 	y: height / 2,
-	radius: constant.scaleBall * (width > height ? height : width),
+	radius: SCALE_BALL * (width > height ? height : width),
 	speed: 5,
 	velocityX: 5,
 	velocityY: 5,
@@ -59,18 +59,18 @@ const currentPlayer = {
 
 	x: 0,
 	y: height / 2 - 100 / 2,
-	width: constant.scalePadWidth * width,
-	height: constant.scalePadHeight * height,
+	width: SCALE_PAD_WIDTH * width,
+	height: SCALE_PAD_HEIGHT * height,
 	color: 'white',
 	score: 0
 };
 
 const enemyPlayer = {
 
-	x: width - constant.scalePadWidth * width,
+	x: width - SCALE_PAD_WIDTH * width,
 	y: height / 2 - 100 / 2,
-	width: constant.scalePadWidth * width,
-	height: constant.scalePadHeight * height,
+	width: SCALE_PAD_WIDTH * width,
+	height: SCALE_PAD_HEIGHT * height,
 	color: 'white',
 	score: 0
 };
@@ -130,66 +130,56 @@ function redrawAll() {
 	ctx.stroke();
 
 	// reset the ball
-	ball.radius = constant.scaleBall * (width > height ? height : width);
+	ball.radius = SCALE_BALL * (width > height ? height : width);
 	drawBall();
 
 	// reset the players
-	currentPlayer.width = constant.scalePadWidth * width;
-	currentPlayer.height = constant.scalePadHeight * height;
+	currentPlayer.width = SCALE_PAD_WIDTH * width;
+	currentPlayer.height = SCALE_PAD_HEIGHT * height;
 	currentPlayer.x = 0;
 	drawPad(currentPlayer);
 
 	//reset the enemy
-	enemyPlayer.width = constant.scalePadWidth * width;
-	enemyPlayer.height = constant.scalePadHeight * height;
-	enemyPlayer.x = width - constant.scalePadWidth * width;
+	enemyPlayer.width = SCALE_PAD_WIDTH * width;
+	enemyPlayer.height = SCALE_PAD_HEIGHT * height;
+	enemyPlayer.x = width - SCALE_PAD_WIDTH * width;
 	drawPad(enemyPlayer);
 }
 
-function movePad(mouseInfo) {
+function mouseMovePad(mouseInfo) {
 
 	let rect = canvas.getBoundingClientRect();
 	let mousey = mouseInfo.clientY - rect.top;
-	if (mousey > currentPlayer.height / 2 && mousey < height - currentPlayer.height + currentPlayer.height / 2) {
+	if (mousey >= currentPlayer.height / 2 && mousey <= height - currentPlayer.height + currentPlayer.height / 2) {
 		currentPlayer.y = mousey - currentPlayer.height / 2;
+		//console.log(currentPlayer.y);
 		redrawAll();
 	}
 }
 
+function keyMovePad() {
+
+    if (keyState['w'] && currentPlayer.y > 0)
+        currentPlayer.y = Math.max(currentPlayer.y - 10, 0);
+    if (keyState['s'] && currentPlayer.y < height - currentPlayer.height)
+        currentPlayer.y = Math.min(currentPlayer.y + 10, height - currentPlayer.height);
+
+
+    if (keyState['p'] && enemyPlayer.y > 0)
+        enemyPlayer.y = Math.max(enemyPlayer.y - 10, 0);
+
+    if (keyState['l'] && enemyPlayer.y < height - enemyPlayer.height)
+        enemyPlayer.y = Math.min(enemyPlayer.y + 10, height - enemyPlayer.height);
+
+    redrawAll();
+}
+
+
 window.addEventListener('resize', redrawAll);
-window.addEventListener('mousemove', movePad);
 window.onload = redrawAll;
 
 
 
 
-////----------------------this is the websocket part----------------------
-// const socket = new WebSocket('ws://localhost:8080');
-// socket.addEventListener('open', function (event) {
-
-//     console.log('WebSocket connection established');
-// });
-// socket.addEventListener('message', function (event) {
-
-//     console.log('Message from server: ', event.data);
-// });
-
-// function sendPadInfo(info) {
-
-//     if (socket.readyState === WebSocket.OPEN) {
-//         socket.send( JSON.stringify({ type: 'paddleInfo', currentPlayer}));
-//     }
-// }
-// function movePad(mouseInfo) {
-
-//     let rect = canvas.getBoundingClientRect();
-//     let mousey = mouseInfo.clientY - rect.top;
-//     if (mousey > currentPlayer.height / 2 && mousey < height - currentPlayer.height / 2) {
-//         currentPlayer.y = mousey - currentPlayer.height / 2;
-//         redrawAll();
-//         sendPadInfo(currentPlayer);
-//     }
-// }
-////----------------------------------------------------------------------
 
 
