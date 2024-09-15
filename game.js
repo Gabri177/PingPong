@@ -1,4 +1,33 @@
 // Drow game window and realise the game logic
+
+const localButton = document.getElementById('localGameButton');
+const onlineButton = document.getElementById('onlineGameButton');
+
+let gameMode = 'local';
+
+localButton.addEventListener('click', function () {
+	
+	gameMode = 'local';
+	startLocalGame();
+});
+
+onlineButton.addEventListener('click', function () {
+	
+	gameMode = 'online';
+	startOnlineGame();
+});
+
+function startLocalGame() {
+
+	console.log('local game started');
+}
+
+function startOnlineGame() {
+
+	console.log('online game started');
+}
+
+
 const canvas = document.getElementById('gameWindow');
 const ctx = canvas.getContext('2d');
 const constant = {
@@ -8,9 +37,12 @@ const constant = {
 	scalePadHeight: 0.2
 };
 
+//define the game window size
 var width = window.innerWidth * 0.6;
 var height = window.innerHeight * 0.6;
+//save the privious window size
 var priviousHeight = window.innerHeight;
+var priviousWidth = window.innerWidth;
 
 const ball = {
 
@@ -65,13 +97,16 @@ function redrawAll() {
 	canvas.width = width;
 	canvas.height = height;
 
-	
+	////////////////////////////////////////////////////////////////
+	// Check if the window size has changed
 	const heightRatio = window.innerHeight / priviousHeight;
-	if(heightRatio != 1){
+	const widthRatio = window.innerWidth / priviousWidth;
+	if(heightRatio != 1 || widthRatio != 1) {
 		
 		currentPlayer.y *= heightRatio;
 		enemyPlayer.y *= heightRatio;
 		ball.y *= heightRatio;
+		ball.x *= widthRatio;
 		///////////////////////////////////
 		// print the x and y of the player
 		const info = document.getElementById('xandy');
@@ -79,7 +114,8 @@ function redrawAll() {
 		///////////////////////////////////
 	}
 	priviousHeight = window.innerHeight;
-	
+	priviousWidth = window.innerWidth;
+	////////////////////////////////////////////////////////////////
 
 	// Draw the center line
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -95,8 +131,6 @@ function redrawAll() {
 
 	// reset the ball
 	ball.radius = constant.scaleBall * (width > height ? height : width);
-	ball.x = width / 2;
-	ball.y = height / 2;
 	drawBall();
 
 	// reset the players
@@ -109,7 +143,6 @@ function redrawAll() {
 	enemyPlayer.width = constant.scalePadWidth * width;
 	enemyPlayer.height = constant.scalePadHeight * height;
 	enemyPlayer.x = width - constant.scalePadWidth * width;
-	//enemyPlayer.y = height / 2 - enemyPlayer.height / 2;
 	drawPad(enemyPlayer);
 }
 
