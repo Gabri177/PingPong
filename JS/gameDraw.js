@@ -1,4 +1,4 @@
-import { output } from './apoyo.js';
+import { output } from './support.js';
 import {SCALE_BALL, SCALE_PAD_WIDTH, SCALE_PAD_HEIGHT, CANVAS_SCALE, FPS, BALL_SPEED} from './constants.js';
 import { keyState, setupKeyControls } from './controls.js';
 import { initGameInfo, drawBall, drawPad } from './gameInit.js';
