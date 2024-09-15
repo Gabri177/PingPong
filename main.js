@@ -1,5 +1,5 @@
 import { output } from './apoyo.js';
-import {SCALE_BALL, SCALE_PAD_WIDTH, SCALE_PAD_HEIGHT} from './constants.js';
+import {SCALE_BALL, SCALE_PAD_WIDTH, SCALE_PAD_HEIGHT, CANVAS_SCALE, FPS} from './constants.js';
 import { keyState, setupKeyControls } from './controls.js';
 
 
@@ -23,7 +23,7 @@ onlineButton.addEventListener('click', function () {
 function startLocalGame() {
 
 	setupKeyControls();
-	setInterval(keyMovePad, 1000 / 60);
+	setInterval(keyMovePad, 1000 / FPS);
 	console.log('local game started');
 }
 
@@ -38,8 +38,8 @@ const canvas = document.getElementById('gameWindow');
 const ctx = canvas.getContext('2d');
 
 //define the game window size
-var width = window.innerWidth * 0.6;
-var height = window.innerHeight * 0.6;
+var width = window.innerWidth * CANVAS_SCALE;
+var height = window.innerHeight * CANVAS_SCALE;
 //save the privious window size
 var priviousHeight = window.innerHeight;
 var priviousWidth = window.innerWidth;
