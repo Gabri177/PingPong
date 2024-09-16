@@ -1,98 +1,84 @@
 import { output } from './support.js';
-import {SCALE_BALL, SCALE_PAD_WIDTH, SCALE_PAD_HEIGHT, CANVAS_SCALE, FPS, BALL_SPEED} from './constants.js';
-import { keyState, setupKeyControls } from './controls.js';
+import { SCALE_BALL, SCALE_PAD_WIDTH, SCALE_PAD_HEIGHT, BALL_SPEED } from './constants.js';
+import { keyState } from './controls.js';
 import { initGameInfo, drawBall, drawPad } from './gameInit.js';
 
 // Get the game info (game init)
 const { canvas, ctx, ball, currentPlayer, enemyPlayer } = initGameInfo('gameWindow');
-let   { width, height, priviousHeight, priviousWidth } = initGameInfo('gameWindow');
 
-// Drow game window and realise the game logic
+// Ball movement direction
+let ballDirectionX = BALL_SPEED;
+let ballDirectionY = BALL_SPEED;
+
+// Draw game window and realize the game logic
 function redrawAll() {
-	
-	// Set the canvas to the window size
-	width = window.innerWidth * CANVAS_SCALE;
-	height = window.innerHeight * CANVAS_SCALE;
-	canvas.width = width;
-	canvas.height = height;
+    // Set the canvas size
+    canvas.width = window.innerWidth * 0.6;
+    canvas.height = window.innerHeight * 0.6;
 
-	////////////////////////////////////////////////////////////////
-	// Check if the window size has changed
-	const heightRatio = window.innerHeight / priviousHeight;
-	const widthRatio = window.innerWidth / priviousWidth;
-	if(heightRatio != 1 || widthRatio != 1) {
-		
-		currentPlayer.y *= heightRatio;
-		enemyPlayer.y *= heightRatio;
-		ball.y *= heightRatio;
-		ball.x *= widthRatio;
-		///////////////////////////////////
-		// print the x and y of the player
-		const info = document.getElementById('xandy');
-		info.innerHTML = 'x: ' + currentPlayer.x + ' y: ' + currentPlayer.y + ' heightRatio: ' + heightRatio + '<br>' + ' priviousHeight: ' + priviousHeight + ' height: ' + window.innerHeight;
-		///////////////////////////////////
-	}
-	priviousHeight = window.innerHeight;
-	priviousWidth = window.innerWidth;
-	////////////////////////////////////////////////////////////////
+    // Clear the canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-	// Draw the center line
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Draw the center line
+    ctx.setLineDash([10, 10]);
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 2;
 
-	ctx.setLineDash([10, 10]);
-	ctx.strokeStyle = 'white';
-	ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2, 0);
+    ctx.lineTo(canvas.width / 2, canvas.height);
+    ctx.stroke();
 
-	ctx.beginPath();
-	ctx.moveTo(canvas.width / 2, 0);
-	ctx.lineTo(canvas.width / 2, canvas.height);
-	ctx.stroke();
+    // Move the ball
+    ball.x += ballDirectionX;
+    ball.y += ballDirectionY;
 
-	// reset the ball
-	ball.radius = SCALE_BALL * (width > height ? height : width);
-	drawBall(ctx, ball);
+    // Check if the ball hits the top or bottom wall
+    if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0) {
+        ballDirectionY *= -1;  // Reverse ball direction on Y axis
+    }
 
-	// reset the players
-	currentPlayer.width = SCALE_PAD_WIDTH * width;
-	currentPlayer.height = SCALE_PAD_HEIGHT * height;
-	currentPlayer.x = 0;
-	drawPad(ctx, currentPlayer);
+    // Check if the ball hits the left or right wall
+    if (ball.x + ball.radius > canvas.width || ball.x - ball.radius < 0) {
+        ballDirectionX *= -1;  // Reverse ball direction on X axis
+    }
 
-	//reset the enemy
-	enemyPlayer.width = SCALE_PAD_WIDTH * width;
-	enemyPlayer.height = SCALE_PAD_HEIGHT * height;
-	enemyPlayer.x = width - SCALE_PAD_WIDTH * width;
-	drawPad(ctx, enemyPlayer);
+    // Draw the ball
+    drawBall(ctx, ball);
+
+    // Draw the paddles
+    drawPad(ctx, currentPlayer);
+    drawPad(ctx, enemyPlayer);
 }
 
 export function mouseMovePad(mouseInfo) {
-
-	let rect = canvas.getBoundingClientRect();
-	let mousey = mouseInfo.clientY - rect.top;
-	if (mousey >= currentPlayer.height / 2 && mousey <= height - currentPlayer.height + currentPlayer.height / 2) {
-		currentPlayer.y = mousey - currentPlayer.height / 2;
-		//console.log(currentPlayer.y);
-		redrawAll();
-	}
+    const rect = canvas.getBoundingClientRect();
+    const mousey = mouseInfo.clientY - rect.top;
+    currentPlayer.y = mousey - currentPlayer.height / 2;
+    redrawAll();
 }
 
 export function keyMovePad() {
+    if (keyState['w'] && currentPlayer.y > 0) {
+        currentPlayer.y -= 10;  // Move up
+    }
+    if (keyState['s'] && currentPlayer.y < canvas.height - currentPlayer.height) {
+        currentPlayer.y += 10;  // Move down
+    }
 
-    if (keyState['w'] && currentPlayer.y > 0)
-        currentPlayer.y = Math.max(currentPlayer.y - 10, 0);
-    if (keyState['s'] && currentPlayer.y < height - currentPlayer.height)
-        currentPlayer.y = Math.min(currentPlayer.y + 10, height - currentPlayer.height);
-
-
-    if (keyState['p'] && enemyPlayer.y > 0)
-        enemyPlayer.y = Math.max(enemyPlayer.y - 10, 0);
-
-    if (keyState['l'] && enemyPlayer.y < height - enemyPlayer.height)
-        enemyPlayer.y = Math.min(enemyPlayer.y + 10, height - enemyPlayer.height);
+    // Move enemy paddle (optional: based on AI or simple key control)
+    if (keyState['p'] && enemyPlayer.y > 0) {
+        enemyPlayer.y -= 10;  // Move up
+    }
+    if (keyState['l'] && enemyPlayer.y < canvas.height - enemyPlayer.height) {
+        enemyPlayer.y += 10;  // Move down
+    }
 
     redrawAll();
 }
 
-
 window.addEventListener('resize', redrawAll);
 window.onload = redrawAll;
+setInterval(() => {
+    redrawAll();
+}, 1000 / 60); // 60 FPS for smooth ball movement
