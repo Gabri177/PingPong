@@ -6,6 +6,8 @@ import { padEdgeCorrect} from './edgeJudge.js';
 
 var initPadYPositionPlayer = 0;
 var initPadYPositionEnamy = 0;
+var ballXPosition = 0;
+var ballYPosition = 0;
 
 // 获取 canvas 元素
 // get the canvas element
@@ -20,6 +22,7 @@ const scene = new THREE.Scene();
 const geometry = new THREE.BoxGeometry(300, 10, tableLength);
 const padPlayer = new THREE.BoxGeometry(10, 10, 20);
 const padEnamy = new THREE.BoxGeometry(10, 10, 20);
+const ball = new THREE.SphereGeometry(5, 32, 32);
 
 // 创建一个材质
 // create a material
@@ -38,6 +41,11 @@ const materialPad = new THREE.MeshLambertMaterial({
 
 	color: 0xff0000,
 })
+const materialBall = new THREE.MeshLambertMaterial({
+
+    color: 0xf0f0ff,
+    wireframe: true
+})
 
 
 // 创建一个网格
@@ -54,6 +62,10 @@ scene.add(meshPadPlayer);
 const meshPadEnamy = new THREE.Mesh(padEnamy, materialPad);
 meshPadEnamy.position.set(150, 10, initPadYPositionEnamy);
 scene.add(meshPadEnamy);
+
+const meshBall = new THREE.Mesh(ball, materialBall);
+meshBall.position.set(ballXPosition, 10, ballYPosition);
+scene.add(meshBall);
 
 // 创建一个坐标轴
 // create an axes helper
