@@ -1,6 +1,6 @@
 import * as THREE from '../node_modules/three/build/three.module.js';
 import { keyStates, setupKeyControls} from './controls.js';
-import { padMoveStepLength, tableLength, padLength} from './constants.js';
+import { padMoveStepLength, tableHeight, tableLength, padLength} from './constants.js';
 import { padEdgeCorrect} from './edgeJudge.js';
 
 
@@ -19,9 +19,9 @@ const scene = new THREE.Scene();
 
 // 创建一个长方形几何体
 // create a box geometry
-const geometry = new THREE.BoxGeometry(300, 10, tableLength);
-const padPlayer = new THREE.BoxGeometry(10, 10, 20);
-const padEnamy = new THREE.BoxGeometry(10, 10, 20);
+const geometry = new THREE.BoxGeometry(tableLength, 10, tableHeight);
+const padPlayer = new THREE.BoxGeometry(10, 10, padLength);
+const padEnamy = new THREE.BoxGeometry(10, 10, padLength);
 const ball = new THREE.SphereGeometry(5, 32, 32);
 
 // 创建一个材质
@@ -116,16 +116,16 @@ setInterval(keyMovePad, 1000 / 60);
 function keyMovePad() {
 
 	if (keyStates['w'])
-        meshPadPlayer.position.set(-150, 10, padEdgeCorrect(initPadYPositionPlayer -= padMoveStepLength, padLength, tableLength));
+        meshPadPlayer.position.set(-150, 10, padEdgeCorrect(initPadYPositionPlayer -= padMoveStepLength, padLength, tableHeight));
     if (keyStates['s'])
-        meshPadPlayer.position.set(-150, 10, padEdgeCorrect(initPadYPositionPlayer += padMoveStepLength, padLength, tableLength));
+        meshPadPlayer.position.set(-150, 10, padEdgeCorrect(initPadYPositionPlayer += padMoveStepLength, padLength, tableHeight));
 
 
     if (keyStates['p'])
-        meshPadEnamy.position.set(150, 10, padEdgeCorrect(initPadYPositionEnamy -= padMoveStepLength, padLength, tableLength));
+        meshPadEnamy.position.set(150, 10, padEdgeCorrect(initPadYPositionEnamy -= padMoveStepLength, padLength, tableHeight));
 
     if (keyStates['l'])
-        meshPadEnamy.position.set(150, 10, padEdgeCorrect(initPadYPositionEnamy += padMoveStepLength, padLength, tableLength));
+        meshPadEnamy.position.set(150, 10, padEdgeCorrect(initPadYPositionEnamy += padMoveStepLength, padLength, tableHeight));
 
 	renderer.render(scene, camera);
 }
