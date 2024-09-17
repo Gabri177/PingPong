@@ -1,6 +1,6 @@
 import * as THREE from '../node_modules/three/build/three.module.js';
 import { keyStates, setupKeyControls} from './controls.js';
-import { padMoveStepLength, tableHeight, tableLength, padLength} from './constants.js';
+import { padMoveStepLength, tableHeight, tableLength, padLength, FPS} from './constants.js';
 import { padEdgeCorrect} from './edgeJudge.js';
 
 
@@ -111,7 +111,7 @@ renderer.render(scene, camera);
 
 window.onload = setupKeyControls;
 
-setInterval(keyMovePad, 1000 / 60);
+setInterval(keyMovePad, 1000 / FPS);
 
 function keyMovePad() {
 
