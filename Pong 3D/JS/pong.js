@@ -69,7 +69,7 @@ scene.add(meshBall);
 
 // 创建一个坐标轴
 // create an axes helper
-const axesHelper = new THREE.AxesHelper(150);
+const axesHelper = new THREE.AxesHelper(300);
 scene.add(axesHelper);
 
 // 创建一个光源
