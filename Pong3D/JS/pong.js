@@ -118,6 +118,7 @@ const camera = new THREE.PerspectiveCamera(fov, aspect, 0.1, 3000);
 // 设置相机位置
 // set the camera position
 camera.position.set(0, 80, 140);
+//camera.position.set(-210, 90, 0); // player view
 // 设置相机朝向
 // set the camera look at
 camera.lookAt(0, 0, 0);
@@ -134,10 +135,10 @@ window.onload = setupKeyControls;
 
 //setInterval(keyMovePad, 1000 / FPS);
 
+// 改进碰撞检测逻辑
 export function keyMovePad() {
-
     // player pad
-	if (keyStates['w'])
+    if (keyStates['w'])
         meshPadPlayer.position.set(-tableLength / 2 + padWidth / 2, 10, padEdgeCorrect(padYPositionPlayer -= padMoveStepLength, padLength, tableHeight));
     if (keyStates['s'])
         meshPadPlayer.position.set(-tableLength / 2 + padWidth / 2, 10, padEdgeCorrect(padYPositionPlayer += padMoveStepLength, padLength, tableHeight));
@@ -150,11 +151,14 @@ export function keyMovePad() {
     let newPositionX = ballDirectionX + ballSpeedX;
     let newPositionY = ballDirectionY + ballSpeedY;
 
-    // 检测球是否碰到玩家的挡板
-    // check if the ball hits the player's pad
-    if (newPositionX < -tableLength / 2 + padWidth + BALL_RADIUS) {
+    // 改进的碰撞检测逻辑，增加缓冲区
+    const collisionBuffer = BALL_RADIUS * 1.2;
+    const radiusBuffer = BALL_RADIUS * 0.3;
 
-        if (newPositionY < padYPositionPlayer + padLength / 2 && newPositionY > padYPositionPlayer - padLength / 2) {
+    // 检测球是否碰到玩家的挡板
+    if (newPositionX < -tableLength / 2 + padWidth + collisionBuffer) {
+        if (newPositionY < padYPositionPlayer + padLength / 2 + radiusBuffer && newPositionY > padYPositionPlayer - padLength / 2 - radiusBuffer) {
+
             let collidePoint = newPositionY - (padYPositionPlayer);
             let normalizedCollidePoint = collidePoint / (padLength / 2);
             let angle = normalizedCollidePoint * Math.PI / 4;
@@ -170,16 +174,15 @@ export function keyMovePad() {
     }
 
     // 检测球是否碰到敌方的挡板
-    // check if the ball hits the enemy's pad
-    if (newPositionX > tableLength / 2 - padWidth - BALL_RADIUS) {
-        if (newPositionY < padYPositionEnamy + padLength / 2 && newPositionY > padYPositionEnamy - padLength / 2) {
+    if (newPositionX > tableLength / 2 - padWidth - collisionBuffer) {
+        if (newPositionY < padYPositionEnamy + padLength / 2 + radiusBuffer && newPositionY > padYPositionEnamy - padLength / 2 - radiusBuffer) {
 
             let collidePoint = newPositionY - (padYPositionEnamy); 
             let normalizedCollidePoint = collidePoint / (padLength / 2); 
             let angle = normalizedCollidePoint * Math.PI / 4;
             adjustBallSpeed();
-            ballSpeedX = -getBallSpeed() * Math.cos(angle); 
-            ballSpeedY = getBallSpeed() * Math.sin(angle); 
+            ballSpeedX = -getBallSpeed() * Math.cos(angle);
+            ballSpeedY = getBallSpeed() * Math.sin(angle);
         } else {
 
             resetBall(meshBall);
@@ -187,19 +190,20 @@ export function keyMovePad() {
             return;
         }
     }
-    // 检测球是否碰到桌子的上或下边界（即tableHeight的边缘）
-    // check if the ball hits the top or bottom edge of the table (the edge of table
-    if (newPositionY > tableHeight / 2 - BALL_RADIUS || newPositionY < -tableHeight / 2 + BALL_RADIUS) {
-        ballSpeedY = -ballSpeedY;  // 反转Y轴方向
+
+    // 检测球是否碰到桌子的上或下边界
+    if (newPositionY > tableHeight / 2 - collisionBuffer || newPositionY < -tableHeight / 2 + collisionBuffer) {
+        ballSpeedY = -ballSpeedY;
     }
+
     // 更新球的位置
-    // update the position of the ball
     ballDirectionX += ballSpeedX;
     ballDirectionY += ballSpeedY;
 
     resetPositionBall(meshBall, ballDirectionX, ballDirectionY);
-	renderer.render(scene, camera);
+    renderer.render(scene, camera);
 }
+
 
 function resetPositionBall(objBall, newPositionX, newPositionY) {
 
