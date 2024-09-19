@@ -152,8 +152,8 @@ export function keyMovePad() {
     let newPositionY = ballDirectionY + ballSpeedY;
 
     // 改进的碰撞检测逻辑，增加缓冲区
-    const collisionBuffer = BALL_RADIUS * 1.2;
-    const radiusBuffer = BALL_RADIUS * 0.3;
+    const collisionBuffer = BALL_RADIUS * 1.2; // for x-axis
+    const radiusBuffer = BALL_RADIUS * 0.3; // for y-axis
 
     // 检测球是否碰到玩家的挡板
     if (newPositionX < -tableLength / 2 + padWidth + collisionBuffer) {
