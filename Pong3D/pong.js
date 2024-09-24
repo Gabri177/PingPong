@@ -4,6 +4,8 @@ import { keyStates, setupKeyControls} from '/controls.js';
 import { padMoveStepLength, tableHeight, tableLength, padLength, FPS, RGB_BALL, RGB_PAD_ENAMY, RGB_PAD_PLAYER, RGB_TABLE, padWidth, BALL_RADIUS, getBallSpeed, setBallSpeed} from '/constants.js';
 import { padEdgeCorrect} from '/edgeJudge.js';
 import { OrbitControls } from '/node_modules/three/build/OrbitControls.js';
+import { getPositionPadJSON, getPositionBallJSON } from '/infoHandler.js';
+import { sendInfoWS, closeWebSocket } from '/socket.js';
 
 
 
@@ -17,6 +19,8 @@ let enamyScore = parseInt(domEnamyScore.innerHTML);
 let playerScore = parseInt(domPlayerScore.innerHTML);
 let ballSpeedX = getBallSpeed();
 let ballSpeedY = getBallSpeed();
+let gameType = '';
+let Id = '';
 
 // 获取 canvas 元素
 // get the canvas element
@@ -71,15 +75,15 @@ mesh.position.set(0, 0, 0);
 // add the mesh to the scene
 scene.add(mesh);
 
-const meshPadPlayer = new THREE.Mesh(padPlayer, materialPadPlayer);
+export const meshPadPlayer = new THREE.Mesh(padPlayer, materialPadPlayer);
 meshPadPlayer.position.set(-tableLength / 2 + padWidth / 2, 10, padYPositionPlayer);
 scene.add(meshPadPlayer);
 
-const meshPadEnamy = new THREE.Mesh(padEnamy, materialPadEnamy);
+export const meshPadEnamy = new THREE.Mesh(padEnamy, materialPadEnamy);
 meshPadEnamy.position.set(tableLength / 2 - padWidth / 2, 10, padYPositionEnamy);
 scene.add(meshPadEnamy);
 
-const meshBall = new THREE.Mesh(ball, materialBall);
+export const meshBall = new THREE.Mesh(ball, materialBall);
 meshBall.position.set(ballDirectionX, 10, ballDirectionY);
 scene.add(meshBall);
 
@@ -132,11 +136,11 @@ renderer.setSize(width, height);
 
 
 /////////////////////////////////////////////////////
-//创建摄像机之后，添加以下代码
+//create controls
 const controls = new OrbitControls(camera, renderer.domElement);
 
 // 可选配置：设置控制器的属性
-controls.enableDamping = true; // 启用惯性
+controls.enableDamping = true; // 启用惯性 //
 controls.dampingFactor = 0.05; // 惯性系数
 controls.enableZoom = true;    // 启用缩放
 controls.enablePan = false;    // 禁用平移
@@ -156,17 +160,27 @@ window.onload = setupKeyControls;
 
 // 改进碰撞检测逻辑
 export function keyMovePad() {
-    // player pad
-    if (keyStates['w'])
-        meshPadPlayer.position.set(-tableLength / 2 + padWidth / 2, 10, padEdgeCorrect(padYPositionPlayer -= padMoveStepLength, padLength, tableHeight));
-    if (keyStates['s'])
-        meshPadPlayer.position.set(-tableLength / 2 + padWidth / 2, 10, padEdgeCorrect(padYPositionPlayer += padMoveStepLength, padLength, tableHeight));
-    // enamy pad
-    if (keyStates['p'])
-        meshPadEnamy.position.set(tableLength / 2 - padWidth / 2, 10, padEdgeCorrect(padYPositionEnamy -= padMoveStepLength, padLength, tableHeight));
-    if (keyStates['l'])
-        meshPadEnamy.position.set(tableLength / 2 - padWidth / 2, 10, padEdgeCorrect(padYPositionEnamy += padMoveStepLength, padLength, tableHeight));
 
+    if (gameType === 'online') {
+
+        if (keyStates['w'])
+            meshPadPlayer.position.set(-tableLength / 2 + padWidth / 2, 10, padEdgeCorrect(padYPositionPlayer -= padMoveStepLength, padLength, tableHeight));
+        if (keyStates['s'])
+            meshPadPlayer.position.set(-tableLength / 2 + padWidth / 2, 10, padEdgeCorrect(padYPositionPlayer += padMoveStepLength, padLength, tableHeight));
+        sendInfoWS(getPositionPadJSON(meshPadPlayer, Id));
+
+    } else if (gameType === 'local') {
+
+        if (keyStates['w'])
+            meshPadPlayer.position.set(-tableLength / 2 + padWidth / 2, 10, padEdgeCorrect(padYPositionPlayer -= padMoveStepLength, padLength, tableHeight));
+        if (keyStates['s'])
+            meshPadPlayer.position.set(-tableLength / 2 + padWidth / 2, 10, padEdgeCorrect(padYPositionPlayer += padMoveStepLength, padLength, tableHeight));
+        if (keyStates['p'] && gameType === 'local')
+            meshPadEnamy.position.set(tableLength / 2 - padWidth / 2, 10, padEdgeCorrect(padYPositionEnamy -= padMoveStepLength, padLength, tableHeight));
+        if (keyStates['l'] && gameType === 'local')
+            meshPadEnamy.position.set(tableLength / 2 - padWidth / 2, 10, padEdgeCorrect(padYPositionEnamy += padMoveStepLength, padLength, tableHeight));
+    }
+    
     let newPositionX = ballDirectionX + ballSpeedX;
     let newPositionY = ballDirectionY + ballSpeedY;
 
@@ -188,6 +202,14 @@ export function keyMovePad() {
 
             resetBall(meshBall);
             domEnamyScore.innerHTML = ++enamyScore;
+            if (enamyScore === 5) {
+
+                if (gameType === 'online') {
+
+                    closeWebSocket();
+                }
+                alert('Game Over! Enamy wins!');
+            }
             return;
         }
     }
@@ -206,6 +228,14 @@ export function keyMovePad() {
 
             resetBall(meshBall);
             domPlayerScore.innerHTML = ++playerScore;
+            if (playerScore === 5) {
+
+                if (gameType === 'online') {
+                        
+                        closeWebSocket();
+                }
+                alert('Game Over! Player wins!');
+            }
             return;
         }
     }
@@ -250,3 +280,22 @@ function adjustBallSpeed() {
     console.log(getBallSpeed());
 }
 
+export function setGameType(type) {
+
+    gameType = type;
+}
+
+export function getGameType() {
+    
+    return gameType;
+}
+
+export function setPlayerId(id) {
+
+    Id = id;
+}
+
+export function uploadPositionBall() {
+    
+        sendInfoWS(getPositionBallJSON(meshBall, Id));
+}

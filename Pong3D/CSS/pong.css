@@ -3,8 +3,8 @@ body {
 
 	margin: 0;
 	padding: 0;
-	background-color: #ffffff;
-	color: #000000;
+	background-color: #000000;
+	color: #ffffff;
 	font-family: 'Press Start 2P', cursive;
 }
 
@@ -22,17 +22,28 @@ canvas {
 
 	display: flex;
 	justify-content: space-between;
+	align-items: center;
 	margin: 0 auto;
 	width: 800px;
-	background-color: #2e2e2e;
+	background-color: #000000;
 	color: #ffffff;
 }
 
+
 #enamyScore, #playerScore {
 
+	display: block;
 	font-size: 2em;;
-	float: left;
 	margin: 20px;
+	text-align: center;
+}
+
+#playerName, #enamyName {
+
+	display: block;
+    font-size: 1.5em;
+	text-align: center;
+	font-weight: bold;
 }
 
 .tempStartGameButton {
@@ -41,10 +52,12 @@ canvas {
 	justify-content: center;
 }
 
+
 #localGameButton, #onlineGameButton, #pause {
 
 	/* width: 100%;
 	height: 100%; */
+	margin: 20px;
 	font-size: 1.5em;
 	background-color: #000;
 	color: #fff;
@@ -52,4 +65,9 @@ canvas {
 	border-radius: 5px;
 	cursor: pointer;
 	transition: background-color 0.5s, color 0.5s;
+}
+
+#localGameButton:hover, #onlineGameButton:hover, #pause:hover {
+    background-color: #fff; /* 背景变为白色 */
+    color: #000; /* 文字变为黑色 */
 }
