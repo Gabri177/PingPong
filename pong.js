@@ -139,8 +139,8 @@ renderer.setSize(width, height);
 //create controls
 const controls = new OrbitControls(camera, renderer.domElement);
 
-// 可选配置：设置控制器的属性
-controls.enableDamping = true; // 启用惯性 //
+//设置控制器的属性
+controls.enableDamping = true; // 启用惯性
 controls.dampingFactor = 0.05; // 惯性系数
 controls.enableZoom = true;    // 启用缩放
 controls.enablePan = false;    // 禁用平移
@@ -154,7 +154,8 @@ controls.maxPolarAngle = Math.PI / 2; // 垂直旋转的最大角度（限制为
 // render the scene
 renderer.render(scene, camera);
 
-window.onload = setupKeyControls;
+setupKeyControls();
+//window.onload = setupKeyControls;
 
 //setInterval(keyMovePad, 1000 / FPS);
 
