@@ -49,6 +49,7 @@ let controls;
 
 
 // 改进碰撞检测逻辑
+// improved collision detection logic
 export function keyMovePad() {
 
     if (gameType === 'online') {
@@ -75,10 +76,12 @@ export function keyMovePad() {
     let newPositionY = ballDirectionY + ballSpeedY;
 
     // 改进的碰撞检测逻辑，增加缓冲区
-    const collisionBuffer = BALL_RADIUS * 1.2; // for x-axis
-    const radiusBuffer = BALL_RADIUS * 0.3; // for y-axis
+    // improved collision detection logic, add buffer
+    const collisionBuffer = BALL_RADIUS ; // for x-axis
+    const radiusBuffer = BALL_RADIUS ; // for y-axis
 
     // 检测球是否碰到玩家的挡板
+    // check if the ball hits the player's pad
     if (newPositionX < -tableLength / 2 + padWidth + collisionBuffer) {
         if (newPositionY < padYPositionPlayer + padLength / 2 + radiusBuffer && newPositionY > padYPositionPlayer - padLength / 2 - radiusBuffer) {
 
@@ -105,6 +108,7 @@ export function keyMovePad() {
     }
 
     // 检测球是否碰到敌方的挡板
+    // check if the ball hits the enamy's pad
     if (newPositionX > tableLength / 2 - padWidth - collisionBuffer) {
         if (newPositionY < padYPositionEnamy + padLength / 2 + radiusBuffer && newPositionY > padYPositionEnamy - padLength / 2 - radiusBuffer) {
 
@@ -131,11 +135,13 @@ export function keyMovePad() {
     }
 
     // 检测球是否碰到桌子的上或下边界
+    // check if the ball hits the top or bottom edge of the table
     if (newPositionY > tableHeight / 2 - collisionBuffer || newPositionY < -tableHeight / 2 + collisionBuffer) {
         ballSpeedY = -ballSpeedY;
     }
 
     // 更新球的位置
+    // update the position of the ball
     ballDirectionX += ballSpeedX;
     ballDirectionY += ballSpeedY;
 
