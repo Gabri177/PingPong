@@ -262,7 +262,7 @@ export function setDomCanvas(id) {
     mesh.position.set(0, 0, 0);
     // 将网格添加到场景
     // add the mesh to the scene
-    scene.add(mesh);
+    //scene.add(mesh);
 
     meshPadPlayer = new THREE.Mesh(padPlayer, materialPadPlayer);
     meshPadPlayer.position.set(-tableLength / 2 + padWidth / 2, 10, padYPositionPlayer);
@@ -279,7 +279,7 @@ export function setDomCanvas(id) {
     // 创建一个坐标轴
     // create an axes helper
     axesHelper = new THREE.AxesHelper(300);
-    scene.add(axesHelper);
+    //scene.add(axesHelper);
 
     // 创建一个光源
     // create a light
@@ -290,7 +290,7 @@ export function setDomCanvas(id) {
     // set the light decay with distance
     light.decay = 0.0;
     light.intensity = 2.0;
-    light.position.set(0, 300, 800);
+    light.position.set(0, 500, 0);
     scene.add(light);
 
 
@@ -306,7 +306,7 @@ export function setDomCanvas(id) {
     camera = new THREE.PerspectiveCamera(fov, aspect, 0.1, 3000);
     // 设置相机位置
     // set the camera position
-    camera.position.set(0, 80, 140);
+    camera.position.set(0, 150, 0);
     //camera.position.set(-210, 90, 0); // player view
     // 设置相机朝向
     // set the camera look at
